@@ -1,4 +1,4 @@
-# Distributed Tactical Defense & Ship Data Network (SDN) Simulator
+# Distributed Tactical Defense Simulator
 
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
 [![Standard](https://img.shields.io/badge/Maritime-IEC%2061162--1%20%7C%20NMEA%200183-green.svg)](https://www.nmea.org/)

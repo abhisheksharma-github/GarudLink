@@ -1,0 +1,18 @@
+CompileFlags:
+  Add:
+    - "-std=c++20"
+    - "-Iinclude"
+    - "-D__float128=double"
+    - "-D_GLIBCXX_HAS_GTHREADS"
+    - "-D_GLIBCXX_USE_C99"
+    - "-D_GLIBCXX_USE_C99_MATH"
+    - "-isystem"
+    - "C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++"
+    - "-isystem"
+    - "C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/mingw32"
+    - "-isystem"
+    - "C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/backward"
+    - "-isystem"
+    - "C:/MinGW/lib/gcc/mingw32/6.3.0/include"
+    - "-isystem"
+    - "C:/MinGW/include"

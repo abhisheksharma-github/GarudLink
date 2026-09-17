@@ -1,0 +1,66 @@
+# =============================================================================
+# PROJECT GARUDLINK - .gitignore
+# =============================================================================
+
+# --- C++ Build Artifacts & CMake Directories ---
+build/
+build_debug/
+build_release/
+bin/
+out/
+target/
+CMakeFiles/
+CMakeScripts/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+install_manifest.txt
+compile_commands.json
+
+# --- Compiled Binaries, Objects & Libraries ---
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.pdb
+*.ilk
+*.exp
+
+# --- Python Bytecode & Environments ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+.env
+.venv
+env/
+venv/
+ENV/
+.pytest_cache/
+
+# --- Simulation & Telemetry Logs ---
+*.log
+*.csv
+engagement_report.csv
+flight_recorder_*.csv
+
+# --- IDE & OS Temporary Files ---
+.idea/
+.vs/
+*.suo
+*.user
+*.useros
+*.sln.docstates
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Keep .vscode configuration if customized
+!.vscode/c_cpp_properties.json
+!.vscode/settings.json

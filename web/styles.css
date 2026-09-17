@@ -1,0 +1,970 @@
+/**
+ * @file styles.css
+ * @brief Military Glass Cockpit & Naval Tactical HUD Design System for SDN Simulator.
+ */
+
+:root {
+  --bg-dark: #080c14;
+  --bg-panel: rgba(13, 20, 36, 0.88);
+  --bg-card: rgba(18, 28, 50, 0.75);
+  --bg-input: rgba(8, 14, 26, 0.95);
+
+  --border-cyan: rgba(0, 240, 255, 0.22);
+  --border-green: rgba(0, 255, 102, 0.22);
+  --border-red: rgba(255, 42, 75, 0.3);
+  --border-amber: rgba(255, 183, 0, 0.3);
+
+  --color-phosphor: #00ff66;
+  --color-phosphor-glow: rgba(0, 255, 102, 0.4);
+  --color-cyan: #00f0ff;
+  --color-cyan-glow: rgba(0, 240, 255, 0.4);
+  --color-amber: #ffb700;
+  --color-amber-glow: rgba(255, 183, 0, 0.4);
+  --color-red: #ff2a4b;
+  --color-red-glow: rgba(255, 42, 75, 0.5);
+  --color-text-dim: #7a8fa6;
+  --color-text-bright: #e6f1ff;
+
+  --font-mono: 'JetBrains Mono', 'Share Tech Mono', 'Consolas', monospace;
+  --font-hud: 'Share Tech Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-dark);
+  color: var(--color-text-bright);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  overflow: hidden;
+}
+
+/* Subtle CRT Scanline HUD Overlay */
+.crt-overlay::before {
+  content: " ";
+  display: block;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+              linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  z-index: 999;
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* ==========================================================================
+   Top Tactical Header Bar
+   ========================================================================== */
+.hud-header {
+  height: 52px;
+  background: rgba(10, 16, 30, 0.95);
+  border-bottom: 1px solid var(--border-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.hud-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hud-logo-icon {
+  font-size: 22px;
+  color: var(--color-cyan);
+  filter: drop-shadow(0 0 8px var(--color-cyan-glow));
+  animation: pulseLogo 3s infinite ease-in-out;
+}
+
+@keyframes pulseLogo {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+.hud-title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-title {
+  font-family: var(--font-hud);
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--color-cyan);
+  text-shadow: 0 0 10px var(--color-cyan-glow);
+}
+
+.hud-subtitle {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--color-text-dim);
+}
+
+.hud-telemetry-bar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.hud-telemetry-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.hud-label {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--color-text-dim);
+}
+
+.hud-value {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.cyan { color: var(--color-cyan); }
+.green { color: var(--color-phosphor); }
+.amber { color: var(--color-amber); }
+.red { color: var(--color-red); }
+.font-bold { font-weight: 800; }
+
+/* Status Badges */
+.badge-green, .badge-cyan, .badge-amber, .badge-red {
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+
+.badge-green { background: rgba(0, 255, 102, 0.15); color: var(--color-phosphor); border: 1px solid var(--border-green); }
+.badge-cyan  { background: rgba(0, 240, 255, 0.15); color: var(--color-cyan);     border: 1px solid var(--border-cyan); }
+.badge-amber { background: rgba(255, 183, 0, 0.15); color: var(--color-amber);    border: 1px solid var(--border-amber); }
+.badge-red   { background: rgba(255, 42, 75, 0.18); color: var(--color-red);      border: 1px solid var(--border-red); }
+
+/* ==========================================================================
+   Main 3-Column Responsive Tactical Viewport
+   ========================================================================== */
+.tactical-layout {
+  display: grid;
+  grid-template-columns: 340px 1fr 400px;
+  height: calc(100vh - 52px);
+  padding: 10px;
+  gap: 10px;
+  background: radial-gradient(circle at 50% 50%, rgba(13, 24, 45, 0.6) 0%, rgba(8, 12, 20, 1) 100%);
+}
+
+.tactical-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-cyan);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.03), 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(18, 28, 50, 0.9);
+  border-bottom: 1px solid var(--border-cyan);
+}
+
+.panel-header h2 {
+  font-family: var(--font-hud);
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: var(--color-text-bright);
+}
+
+.panel-icon {
+  font-size: 15px;
+  margin-right: 6px;
+}
+
+.panel-badge {
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 2px;
+  letter-spacing: 1px;
+}
+
+.panel-badge.red   { background: rgba(255, 42, 75, 0.2); color: var(--color-red); }
+.panel-badge.green { background: rgba(0, 255, 102, 0.2); color: var(--color-phosphor); }
+.panel-badge.cyan  { background: rgba(0, 240, 255, 0.2); color: var(--color-cyan); }
+
+/* HUD Cards */
+.hud-card {
+  margin: 8px;
+  padding: 10px;
+  background: var(--bg-card);
+  border: 1px solid rgba(0, 240, 255, 0.12);
+  border-radius: 3px;
+}
+
+.card-title {
+  font-family: var(--font-hud);
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--color-cyan);
+  margin-bottom: 8px;
+  border-bottom: 1px dashed rgba(0, 240, 255, 0.2);
+  padding-bottom: 4px;
+}
+
+/* ==========================================================================
+   Left Panel: Fire Control Console
+   ========================================================================== */
+.panel-left {
+  overflow-y: auto;
+}
+
+.threat-table-container {
+  overflow-x: auto;
+}
+
+.threat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.threat-table th {
+  text-align: left;
+  padding: 4px 6px;
+  color: var(--color-text-dim);
+  font-size: 9px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.threat-table td {
+  padding: 6px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.fire-control-status {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.fc-metric {
+  background: var(--bg-input);
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+}
+
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+/* Tactical Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 18px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(255, 255, 255, 0.15);
+  transition: 0.3s;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 12px;
+  width: 12px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #fff;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: var(--color-phosphor);
+  box-shadow: 0 0 8px var(--color-phosphor-glow);
+}
+
+input:checked + .toggle-slider.red-slider {
+  background-color: var(--color-red);
+  box-shadow: 0 0 8px var(--color-red-glow);
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(18px);
+}
+
+.toggle-label {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+/* Tactical Buttons */
+.btn-tactical {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 3px;
+  font-family: var(--font-hud);
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-launch {
+  background: linear-gradient(180deg, #ff334b 0%, #b31028 100%);
+  color: #fff;
+  border: 1px solid #ff7a8a;
+  box-shadow: 0 0 15px rgba(255, 42, 75, 0.4);
+  font-weight: 800;
+  margin-top: 6px;
+}
+
+.btn-launch:hover {
+  background: linear-gradient(180deg, #ff4d63 0%, #d61432 100%);
+  box-shadow: 0 0 25px rgba(255, 42, 75, 0.7);
+  transform: translateY(-1px);
+}
+
+.btn-launch:active {
+  transform: translateY(1px);
+}
+
+.btn-secondary {
+  background: rgba(0, 240, 255, 0.1);
+  color: var(--color-cyan);
+  border: 1px solid var(--border-cyan);
+  font-size: 11px;
+  padding: 6px;
+}
+
+.btn-secondary:hover {
+  background: rgba(0, 240, 255, 0.2);
+  box-shadow: 0 0 10px var(--color-cyan-glow);
+}
+
+.slider-group {
+  margin: 10px 0;
+}
+
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 10px;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--color-cyan);
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* ==========================================================================
+   Center Panel: Tactical PPI Radar Scope
+   ========================================================================== */
+.panel-center {
+  position: relative;
+}
+
+.radar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.scope-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.radar-controls-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.range-selector {
+  display: flex;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: 2px;
+}
+
+.btn-range, .btn-scope-tool {
+  background: transparent;
+  color: var(--color-text-dim);
+  border: none;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-family: var(--font-hud);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-range.active, .btn-scope-tool.active {
+  background: rgba(0, 240, 255, 0.2);
+  color: var(--color-cyan);
+  font-weight: 700;
+}
+
+.btn-scope-tool {
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: 2px;
+}
+
+.radar-canvas-wrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #040810;
+  overflow: hidden;
+}
+
+#radarCanvas {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  filter: drop-shadow(0 0 20px rgba(0, 255, 102, 0.15));
+}
+
+.radar-tooltip {
+  position: absolute;
+  display: none;
+  background: rgba(10, 16, 30, 0.9);
+  border: 1px solid var(--color-cyan);
+  padding: 4px 8px;
+  font-size: 10px;
+  color: var(--color-cyan);
+  pointer-events: none;
+  border-radius: 2px;
+  z-index: 50;
+}
+
+.scope-footer-hud {
+  padding: 6px 12px;
+  background: rgba(10, 16, 30, 0.9);
+  border-top: 1px solid rgba(0, 240, 255, 0.15);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+}
+
+.hud-legend {
+  display: flex;
+  gap: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-dim);
+}
+
+.legend-symbol {
+  font-weight: bold;
+}
+
+/* ==========================================================================
+   Right Panel: Altitude Profile & SDN Bus Terminal
+   ========================================================================== */
+.panel-right {
+  display: grid;
+  grid-template-rows: 240px 1fr;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.profile-card, .terminal-card {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-cyan);
+  border-radius: 4px;
+}
+
+.altitude-canvas-wrapper {
+  flex: 1;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #040810;
+}
+
+#altitudeCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.terminal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.terminal-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-mini {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--color-text-dim);
+  font-size: 9px;
+  padding: 2px 6px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.btn-mini.active {
+  background: rgba(0, 255, 102, 0.15);
+  color: var(--color-phosphor);
+  border-color: var(--border-green);
+}
+
+.terminal-filters {
+  display: flex;
+  gap: 2px;
+  padding: 4px 8px;
+  background: rgba(10, 16, 30, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.filter-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--color-text-dim);
+  font-size: 9px;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+.filter-tab.active {
+  background: rgba(0, 240, 255, 0.15);
+  color: var(--color-cyan);
+  border-color: var(--border-cyan);
+  border-radius: 2px;
+}
+
+.terminal-log-stream {
+  flex: 1;
+  padding: 8px;
+  background: #03060c;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.log-line {
+  white-space: nowrap;
+  display: flex;
+  gap: 6px;
+}
+
+.log-time { color: var(--color-text-dim); font-size: 10px; }
+.log-rdr  { color: var(--color-cyan); }
+.log-msl  { color: var(--color-amber); }
+.log-uav  { color: var(--color-red); }
+.log-cs   { color: #ff55ff; }
+.log-gp   { color: var(--color-phosphor); }
+.log-chk-ok { color: var(--color-phosphor); font-weight: bold; }
+.log-chk-err { color: var(--color-red); font-weight: bold; }
+
+.terminal-status-bar {
+  padding: 4px 8px;
+  background: rgba(10, 16, 30, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--color-text-dim);
+}
+
+/* Custom Tactical Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.4);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.25);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-cyan);
+}
+
+/* Pulse Animations */
+@keyframes pulseRed {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.animate-pulse {
+  animation: pulseRed 1.5s infinite;
+}
+
+/* Mobile Navigation Bar */
+.mobile-nav-bar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 54px;
+  background: rgba(10, 16, 30, 0.98);
+  border-top: 1px solid var(--border-cyan);
+  z-index: 1000;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.mobile-nav-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-dim);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-family: var(--font-hud);
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.mobile-nav-btn .nav-icon {
+  font-size: 16px;
+}
+
+.mobile-nav-btn.active {
+  color: var(--color-cyan);
+  background: rgba(0, 240, 255, 0.1);
+  box-shadow: inset 0 -2px 0 var(--color-cyan);
+}
+
+/* ==========================================================================
+   Threat Injector & Mode Selector Grids
+   ========================================================================== */
+.threat-injector-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.btn-threat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(18, 28, 50, 0.9);
+  border: 1px solid var(--border-cyan);
+  border-radius: 4px;
+  padding: 8px 10px;
+  color: var(--color-text-bright);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.btn-threat:hover {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: var(--color-cyan);
+  transform: translateX(3px);
+}
+
+.threat-icon {
+  font-size: 18px;
+}
+
+.threat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.threat-info strong {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.threat-info span {
+  font-size: 10px;
+  color: var(--color-text-dim);
+}
+
+.threat-quad:hover { border-color: #00ffcc; }
+.threat-kami:hover { border-color: #ffb700; }
+.threat-asm:hover { border-color: #ff2a4b; }
+
+.threat-prompt-hint {
+  font-size: 10px;
+  color: var(--color-text-dim);
+  padding: 4px 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  border-left: 2px solid var(--color-amber);
+}
+
+.mode-selector-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.btn-mode {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 10px;
+  background: rgba(10, 16, 30, 0.8);
+  border: 1px solid var(--border-green);
+  border-radius: 4px;
+  color: var(--color-text-bright);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.btn-mode strong {
+  font-size: 11px;
+  color: var(--color-phosphor);
+}
+
+.btn-mode span {
+  font-size: 10px;
+  color: var(--color-text-dim);
+}
+
+.btn-mode:hover {
+  background: rgba(0, 255, 102, 0.15);
+  border-color: var(--color-phosphor);
+}
+
+.btn-mode.active {
+  background: rgba(0, 255, 102, 0.2);
+  border-color: var(--color-phosphor);
+  box-shadow: 0 0 10px var(--color-phosphor-glow);
+}
+
+/* ==========================================================================
+   Scenario Loader & Manual Coordinate Injection Styling
+   ========================================================================== */
+.scenario-upload-zone {
+  border: 2px dashed var(--border-cyan);
+  border-radius: 6px;
+  padding: 10px;
+  text-align: center;
+  background: rgba(0, 240, 255, 0.03);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.scenario-upload-zone:hover, .scenario-upload-zone.dragover {
+  border-color: var(--color-cyan);
+  background: rgba(0, 240, 255, 0.08);
+  box-shadow: 0 0 12px var(--color-cyan-glow);
+}
+
+.upload-zone-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.upload-icon {
+  font-size: 20px;
+}
+
+.upload-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.upload-text strong {
+  font-size: 11px;
+  color: var(--color-cyan);
+}
+
+.upload-text span {
+  font-size: 9px;
+  color: var(--color-text-dim);
+}
+
+.manual-inject-details summary {
+  outline: none;
+  transition: color 0.2s;
+}
+
+.manual-inject-details summary:hover {
+  color: var(--color-phosphor) !important;
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.form-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.form-group label {
+  font-size: 9px;
+  color: var(--color-text-dim);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.hud-input, .hud-select {
+  background: var(--bg-input);
+  border: 1px solid var(--border-cyan);
+  border-radius: 4px;
+  color: var(--color-text-bright);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 6px;
+  width: 100%;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.hud-input:focus, .hud-select:focus {
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 6px var(--color-cyan-glow);
+}
+
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+@media (max-width: 1200px) {
+  .tactical-layout {
+    grid-template-columns: 300px 1fr 320px;
+  }
+}
+
+@media (max-width: 900px) {
+  .tactical-layout {
+    grid-template-columns: 280px 1fr;
+  }
+  .panel-right {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  html, body {
+    overflow: auto;
+  }
+  .hud-header {
+    height: auto;
+    padding: 8px 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .hud-telemetry-bar {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 10px;
+  }
+  .tactical-layout {
+    display: block;
+    height: calc(100vh - 120px);
+    padding: 6px;
+  }
+  .tactical-panel {
+    display: none;
+    height: 100%;
+  }
+  .tactical-panel.active {
+    display: flex;
+  }
+  .panel-right.active {
+    display: grid;
+    grid-template-rows: 200px 1fr;
+  }
+  .mobile-nav-bar {
+    display: grid;
+  }
+}

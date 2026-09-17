@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GarudLink // Real-Time Naval Tactical SDN & Defense Cockpit</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body class="crt-overlay">
+
+  <!-- Top Tactical Status Bar -->
+  <header class="hud-header">
+    <div class="hud-brand">
+      <span class="hud-logo-icon">⬢</span>
+      <div class="hud-title-group">
+        <h1 class="hud-title">GARUDLINK // TACTICAL COMMAND</h1>
+        <span class="hud-subtitle">NAVAL SHIP DATA NETWORK & GNC MISSION SIMULATOR</span>
+      </div>
+    </div>
+
+    <div class="hud-telemetry-bar">
+      <div class="hud-telemetry-item">
+        <span class="hud-label">OWNSHIP</span>
+        <span class="hud-value cyan">DDG-1000 [RADAR-1]</span>
+      </div>
+      <div class="hud-telemetry-item">
+        <span class="hud-label">RADAR MODE</span>
+        <span id="radarModeBadge" class="hud-value badge-green">SURV 360°</span>
+      </div>
+      <div class="hud-telemetry-item">
+        <span class="hud-label">DEFCON</span>
+        <span class="hud-value badge-amber">DEFCON 2 // WEAPONS FREE</span>
+      </div>
+      <div class="hud-telemetry-item">
+        <span class="hud-label">SDN WEBSOCKET</span>
+        <span id="connStatusBadge" class="hud-value badge-cyan">SYNCING...</span>
+      </div>
+      <div class="hud-telemetry-item">
+        <span class="hud-label">ZULU TIME</span>
+        <span id="zuluTime" class="hud-value">00:00:00.0Z</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main 3-Column Tactical Viewport -->
+  <main class="tactical-layout">
+
+    <!-- Column 1: Fire Control Console, Threat Injector & EW -->
+    <section id="panelFireControl" class="tactical-panel panel-left tab-content active">
+      
+      <!-- Panel Header -->
+      <div class="panel-header">
+        <span class="panel-icon">☩</span>
+        <h2>FIRE CONTROL & TASKING</h2>
+        <span class="panel-badge red">AUTO-CMS</span>
+      </div>
+
+      <!-- Scenario Configuration & Loader Deck -->
+      <div class="hud-card">
+        <div class="card-title">DECLARATIVE SCENARIO LOADER</div>
+        <div class="scenario-upload-zone" id="scenarioDropZone">
+          <input type="file" id="scenarioFileInput" accept=".json" style="display: none;">
+          <div class="upload-zone-content">
+            <span class="upload-icon">📁</span>
+            <div class="upload-text">
+              <strong>DRAG & DROP SCENARIO JSON</strong>
+              <span>or click to browse local configuration</span>
+            </div>
+          </div>
+          <button id="btnBrowseFile" class="btn-tactical btn-secondary" style="margin-top: 8px; width: 100%;">
+            📂 UPLOAD SCENARIO JSON
+          </button>
+        </div>
+        <div class="preset-buttons-row" style="margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+          <button id="btnLoadDefaultScenario" class="btn-mini">DEFAULT SCENARIO</button>
+          <button id="btnLoadStraitScenario" class="btn-mini">DEFEND STRAIT</button>
+        </div>
+      </div>
+
+      <!-- Threat Injector Deck -->
+      <div class="hud-card">
+        <div class="card-title">DYNAMIC THREAT INJECTOR</div>
+        <div class="threat-injector-grid">
+          <button id="btnSpawnQuad" class="btn-threat threat-quad">
+            <span class="threat-icon">🛸</span>
+            <div class="threat-info">
+              <strong>RECON QUAD-UAV</strong>
+              <span>0.02 m² RCS | 35 m/s | 150m</span>
+            </div>
+          </button>
+          <button id="btnSpawnKami" class="btn-threat threat-kami">
+            <span class="threat-icon">💥</span>
+            <div class="threat-info">
+              <strong>KAMIKAZE DRONE</strong>
+              <span>0.05 m² RCS | 70 m/s | 6G Weave</span>
+            </div>
+          </button>
+          <button id="btnSpawnAsm" class="btn-threat threat-asm">
+            <span class="threat-icon">⚡</span>
+            <div class="threat-info">
+              <strong>SEA-SKIMMER ASM</strong>
+              <span>0.15 m² RCS | Mach 2.2 | 10m Alt</span>
+            </div>
+          </button>
+        </div>
+        
+        <!-- Collapsible Manual Coordinate Vector Injection Form -->
+        <details class="manual-inject-details" style="margin-top: 10px;">
+          <summary class="hud-label" style="cursor: pointer; color: var(--color-cyan); font-weight: bold; padding: 4px 0;">
+            ✚ EXACT COORDINATE INJECTION (MANUAL)
+          </summary>
+          <form id="formManualInject" class="manual-inject-form" style="margin-top: 8px;">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>TYPE</label>
+                <select id="inpThreatType" class="hud-select">
+                  <option value="UAV">UAV (Recon / Drone)</option>
+                  <option value="CRUISE_MISSILE">CRUISE MISSILE (ASM)</option>
+                  <option value="BALLISTIC">BALLISTIC MISSILE</option>
+                  <option value="DRONE_SWARM">DRONE SWARM</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>RCS (m²)</label>
+                <input type="number" id="inpRcs" value="0.05" step="0.01" min="0.001" class="hud-input">
+              </div>
+            </div>
+            
+            <div class="form-row-3">
+              <div class="form-group">
+                <label>POS X (m)</label>
+                <input type="number" id="inpPosX" value="18000" step="500" class="hud-input">
+              </div>
+              <div class="form-group">
+                <label>POS Y (m)</label>
+                <input type="number" id="inpPosY" value="18000" step="500" class="hud-input">
+              </div>
+              <div class="form-group">
+                <label>ALT Z (m)</label>
+                <input type="number" id="inpPosZ" value="-1500" step="100" class="hud-input">
+              </div>
+            </div>
+
+            <div class="form-row-3">
+              <div class="form-group">
+                <label>VEL VX (m/s)</label>
+                <input type="number" id="inpVelX" value="-60" step="10" class="hud-input">
+              </div>
+              <div class="form-group">
+                <label>VEL VY (m/s)</label>
+                <input type="number" id="inpVelY" value="-60" step="10" class="hud-input">
+              </div>
+              <div class="form-group">
+                <label>VEL VZ (m/s)</label>
+                <input type="number" id="inpVelZ" value="0" step="5" class="hud-input">
+              </div>
+            </div>
+
+            <button type="submit" id="btnManualInjectSubmit" class="btn-tactical" style="margin-top: 8px; width: 100%;">
+              ⚡ INJECT TARGET VECTOR INTO GRID
+            </button>
+          </form>
+        </details>
+
+        <div class="threat-prompt-hint" style="margin-top: 8px;">
+          <span>💡 Tip: Click anywhere on PPI Scope or use inputs above to inject custom targets.</span>
+        </div>
+      </div>
+
+      <!-- Threat Evaluation Matrix -->
+      <div class="hud-card">
+        <div class="card-title">TACTICAL TRACK TABLE</div>
+        <div class="threat-table-container">
+          <table class="threat-table">
+            <thead>
+              <tr>
+                <th>TRACK ID</th>
+                <th>TYPE</th>
+                <th>RNG (KM)</th>
+                <th>BRG (°)</th>
+                <th>ALT (M)</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody id="threatTableBody">
+              <tr>
+                <td colspan="6" class="text-center text-dim">Scanning 360° volume...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Radar Operational Mode Tasking -->
+      <div class="hud-card">
+        <div class="card-title">PHASED ARRAY RADAR MODES</div>
+        <div class="mode-selector-grid">
+          <button id="btnModeSurv" class="btn-mode active" data-mode="SURVEILLANCE_360">
+            <strong>360° SURVEILLANCE</strong>
+            <span>15 RPM Volume Scan</span>
+          </button>
+          <button id="btnModeSector" class="btn-mode" data-mode="SECTOR_CUE">
+            <strong>45° SECTOR CUE</strong>
+            <span>60 RPM High-Rate Sweep</span>
+          </button>
+          <button id="btnModeStt" class="btn-mode" data-mode="STT_TRACK_LOCK">
+            <strong>STT TRACK LOCK</strong>
+            <span>Continuous Illumination</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Electronic Warfare & Evasion -->
+      <div class="hud-card">
+        <div class="card-title">ELECTRONIC WARFARE & MANEUVERS</div>
+        <div class="control-row">
+          <label class="toggle-switch">
+            <input type="checkbox" id="targetEvasionToggle">
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">TRIGGER 9G EVASIVE WEAVE</span>
+        </div>
+        <div class="control-row">
+          <label class="toggle-switch">
+            <input type="checkbox" id="targetJammingToggle">
+            <span class="toggle-slider red-slider"></span>
+          </label>
+          <span class="toggle-label red font-bold">ACTIVE RF NOISE JAMMING</span>
+        </div>
+      </div>
+
+      <!-- Interceptor Fire Control -->
+      <div class="hud-card">
+        <div class="card-title">INTERCEPTOR FIRE CONTROL</div>
+        <div class="fire-control-status">
+          <div class="fc-metric">
+            <span class="hud-label">PERIMETER THRESHOLD</span>
+            <span id="thresholdVal" class="hud-value amber">15.0 KM</span>
+          </div>
+          <div class="fc-metric">
+            <span class="hud-label">MOTOR STAGE</span>
+            <span id="motorStageBadge" class="hud-value cyan">READY</span>
+          </div>
+          <div class="fc-metric">
+            <span class="hud-label">SEEKER LOOK ANGLE</span>
+            <span id="seekerLookAngleVal" class="hud-value green">0.0° (FOV ±35°)</span>
+          </div>
+        </div>
+
+        <div class="control-row">
+          <label class="toggle-switch">
+            <input type="checkbox" id="autoEngageToggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">AUTOMATED CMS ENGAGEMENT</span>
+        </div>
+
+        <button id="btnManualLaunch" class="btn-tactical btn-launch">
+          <span class="launch-icon">🚀</span> AUTHORIZE MANUAL INTERCEPT
+        </button>
+
+        <div class="button-row" style="margin-top: 8px;">
+          <button id="btnDownloadAar" class="btn-tactical btn-secondary">📥 DOWNLOAD AAR REPORT (CSV)</button>
+          <button id="btnResetScenario" class="btn-tactical btn-secondary">⟳ RESET SCENARIO</button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Column 2: Center Tactical PPI Radar Scope -->
+    <section id="panelRadar" class="tactical-panel panel-center tab-content active">
+      <div class="panel-header radar-header">
+        <div class="scope-title-group">
+          <span class="panel-icon phosphor">◎</span>
+          <h2>PLAN POSITION INDICATOR (PPI) SCOPE</h2>
+          <span class="panel-badge green">4/3 EARTH CURVATURE HORIZON</span>
+        </div>
+
+        <div class="radar-controls-toolbar">
+          <div class="range-selector">
+            <button class="btn-range" data-range="10">10 KM</button>
+            <button class="btn-range active" data-range="25">25 KM</button>
+            <button class="btn-range" data-range="50">50 KM</button>
+          </div>
+          <button id="btnToggleTrails" class="btn-scope-tool active">TRAILS</button>
+          <button id="btnToggleVectors" class="btn-scope-tool active">VECTORS</button>
+        </div>
+      </div>
+
+      <!-- PPI Canvas Display Container -->
+      <div class="radar-canvas-wrapper" id="radarWrapper">
+        <canvas id="radarCanvas" width="800" height="800"></canvas>
+        <div id="radarCrosshairTooltip" class="radar-tooltip"></div>
+      </div>
+
+      <!-- Scope HUD Readouts & Legend -->
+      <div class="scope-footer-hud">
+        <div class="hud-legend">
+          <span class="legend-item"><span class="legend-symbol cyan">○</span> OWNSHIP (DDG-1000)</span>
+          <span class="legend-item"><span class="legend-symbol red">◇</span> HOSTILE THREAT</span>
+          <span class="legend-item"><span class="legend-symbol amber">△</span> INTERCEPTOR MISSILE</span>
+          <span class="legend-item"><span class="legend-symbol green">◺</span> SCAN BEAM</span>
+          <span class="legend-item"><span class="legend-symbol dashed-cyan">--</span> 4/3 RADAR HORIZON (33.6km)</span>
+        </div>
+        <div class="scope-readout">
+          <span>AZ: <strong id="scopeAzimuthReadout" class="green">000.0°</strong></span>
+          <span>RANGE: <strong id="scopeRangeReadout" class="green">25.0 KM</strong></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Column 3: 2D Altitude Profile & Live SDN Bus Terminal -->
+    <section id="panelBus" class="tactical-panel panel-right tab-content active">
+      
+      <!-- 2D Altitude / Distance Profile -->
+      <div class="hud-card profile-card">
+        <div class="panel-header">
+          <span class="panel-icon cyan">📈</span>
+          <h2>2D ALTITUDE / DOWNRANGE PROFILE</h2>
+          <span class="panel-badge cyan">GNC TRAJECTORY</span>
+        </div>
+        <div class="altitude-canvas-wrapper">
+          <canvas id="altitudeCanvas" width="450" height="220"></canvas>
+        </div>
+      </div>
+
+      <!-- Raw SDN Live Bus Terminal -->
+      <div class="hud-card terminal-card">
+        <div class="panel-header">
+          <div class="terminal-title-group">
+            <span class="panel-icon green">⌨</span>
+            <h2>SDN LIVE BUS TERMINAL</h2>
+            <span class="panel-badge green">NMEA 0183 / SDN</span>
+          </div>
+          <div class="terminal-actions">
+            <button id="btnClearTerminal" class="btn-mini">CLEAR</button>
+            <button id="btnAutoScroll" class="btn-mini active">AUTO-SCROLL</button>
+          </div>
+        </div>
+
+        <div class="terminal-filters">
+          <button class="filter-tab active" data-filter="ALL">ALL</button>
+          <button class="filter-tab" data-filter="RDR">$RDR</button>
+          <button class="filter-tab" data-filter="MSL">$MSL</button>
+          <button class="filter-tab" data-filter="UAV">$UAV</button>
+          <button class="filter-tab" data-filter="CS">$CS</button>
+        </div>
+
+        <div class="terminal-log-stream" id="terminalStream">
+          <!-- Live scrolling NMEA lines -->
+        </div>
+
+        <div class="terminal-status-bar">
+          <span>RX: <strong id="rxPacketCount">0</strong> MSGS</span>
+          <span>CHECKSUM: <strong class="green">XOR 100%</strong></span>
+          <span>RATE: <strong id="busRateText" class="cyan">50 Hz</strong></span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile & Tablet Bottom Navigation Bar (<768px) -->
+  <nav class="mobile-nav-bar">
+    <button class="mobile-nav-btn active" data-tab="panelRadar">
+      <span class="nav-icon">◎</span>
+      <span>PPI SCOPE</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab="panelFireControl">
+      <span class="nav-icon">☩</span>
+      <span>FIRE CONTROL</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab="panelBus">
+      <span class="nav-icon">⌨</span>
+      <span>BUS LOGS</span>
+    </button>
+  </nav>
+
+  <script src="app.js"></script>
+</body>
+</html>

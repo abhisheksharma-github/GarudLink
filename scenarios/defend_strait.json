@@ -1,0 +1,104 @@
+{
+  "simulation": {
+    "name": "Strait of Malacca Multi-Threat Saturation Attack",
+    "tick_rate_hz": 100,
+    "duration_s": 450.0,
+    "seed": 101
+  },
+  "ownship": {
+    "id": "DDG-1000",
+    "position": [0.0, 0.0, -25.0],
+    "velocity": [12.0, 0.0, 0.0],
+    "radar": {
+      "id": "RDR-01",
+      "transmitter_power_w": 80000.0,
+      "frequency_hz": 9.4e9,
+      "antenna_gain_dbi": 40.0,
+      "noise_floor_dbm": -102.0,
+      "scan_mode": "SURVEILLANCE_360",
+      "scan_rate_deg_s": 120.0,
+      "azimuth_beamwidth_deg": 1.8,
+      "elevation_beamwidth_deg": 35.0
+    }
+  },
+  "defense_doctrine": {
+    "interceptor_count": 16,
+    "doctrine_mode": "AUTO_DEFENSE",
+    "max_engagement_range_m": 18000.0,
+    "proportional_nav_gain": 4.2,
+    "max_g_limit": 40.0,
+    "proximity_fuse_radius_m": 12.0
+  },
+  "targets": [
+    {
+      "id": "RECON-01",
+      "type": "UAV",
+      "spawn_time_s": 0.0,
+      "initial_position": [16000.0, 8000.0, -150.0],
+      "initial_velocity": [-30.0, -15.0, 0.0],
+      "speed_mps": 35.0,
+      "rcs_m2": 0.02,
+      "evasion_profile": "NONE",
+      "evasion_frequency_hz": 0.0,
+      "evasion_amplitude_g": 0.0,
+      "active_jamming": false,
+      "jammer_power_w": 0.0
+    },
+    {
+      "id": "SWARM-LEAD",
+      "type": "UAV",
+      "spawn_time_s": 5.0,
+      "initial_position": [19000.0, 14000.0, -250.0],
+      "initial_velocity": [-55.0, -40.0, 0.0],
+      "speed_mps": 70.0,
+      "rcs_m2": 0.05,
+      "evasion_profile": "WEAVE_6G",
+      "evasion_frequency_hz": 0.6,
+      "evasion_amplitude_g": 6.0,
+      "active_jamming": true,
+      "jammer_power_w": 500.0
+    },
+    {
+      "id": "SWARM-WING",
+      "type": "UAV",
+      "spawn_time_s": 6.5,
+      "initial_position": [19500.0, 14500.0, -250.0],
+      "initial_velocity": [-55.0, -40.0, 0.0],
+      "speed_mps": 70.0,
+      "rcs_m2": 0.05,
+      "evasion_profile": "WEAVE_6G",
+      "evasion_frequency_hz": 0.6,
+      "evasion_amplitude_g": 6.0,
+      "active_jamming": false,
+      "jammer_power_w": 0.0
+    },
+    {
+      "id": "ASM-SUNBURN-01",
+      "type": "CRUISE_MISSILE",
+      "spawn_time_s": 20.0,
+      "initial_position": [28000.0, -12000.0, -10.0],
+      "initial_velocity": [-700.0, 270.0, 0.0],
+      "speed_mps": 750.0,
+      "rcs_m2": 0.15,
+      "evasion_profile": "BARREL_ROLL",
+      "evasion_frequency_hz": 0.85,
+      "evasion_amplitude_g": 9.0,
+      "active_jamming": false,
+      "jammer_power_w": 0.0
+    },
+    {
+      "id": "ASM-SUNBURN-02",
+      "type": "CRUISE_MISSILE",
+      "spawn_time_s": 22.0,
+      "initial_position": [29000.0, -11000.0, -10.0],
+      "initial_velocity": [-710.0, 260.0, 0.0],
+      "speed_mps": 750.0,
+      "rcs_m2": 0.15,
+      "evasion_profile": "BARREL_ROLL",
+      "evasion_frequency_hz": 0.85,
+      "evasion_amplitude_g": 9.0,
+      "active_jamming": false,
+      "jammer_power_w": 0.0
+    }
+  ]
+}
